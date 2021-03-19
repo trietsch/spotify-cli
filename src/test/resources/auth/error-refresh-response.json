@@ -1,0 +1,4 @@
+{
+  "code": 500,
+  "message": "An error occurred while requesting / refreshing a user access token for Stream Machine."
+}

@@ -1,0 +1,224 @@
+# Based on https://blogs.oracle.com/developers/building-cross-platform-native-images-with-graalvm
+
+name: strm
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-jar-job:
+    name: 'Build JAR'
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Setup Java 11'
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: 'Get Version Number'
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+#      - name: 'Get Maven Version Number'
+#        run: echo "POM_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: 'Build JAR'
+        run: |
+          ./mvnw clean package
+
+      - name: 'Publish JAR'
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'strm-${{env.VERSION}}.jar'
+          path: 'target/strm-${{env.VERSION}}.jar'
+
+      - name: 'Create Release'
+        if: contains(github.ref, 'v')
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+        with:
+          tag_name: ${{github.ref}}
+          release_name: Release ${{github.ref}}
+          body: |
+            Stream Machine CLI ${{github.ref}}
+          draft: false
+          prerelease: false
+
+      - name: 'Upload Release Asset'
+        if: contains(github.ref, 'v')
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: 'target/strm-${{env.VERSION}}.jar'
+          asset_name: strm-${{env.VERSION}}.jar
+          asset_content_type: application/java-archive
+
+
+      - name: 'Write Upload URL To File'
+        if: contains(github.ref, 'v')
+        run: |
+          echo "${{steps.create_release.outputs.upload_url}}" > upload_url.txt
+
+      - name: 'Publish Upload URL'
+        if: contains(github.ref, 'v')
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'upload_url.txt'
+          path: 'upload_url.txt'
+
+  build-non-windows-image:
+    name: 'Build Non-Windows Image'
+    needs: [build-jar-job]
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest']
+        include:
+          - os: 'ubuntu-latest'
+            label: 'linux'
+          - os: 'macos-latest'
+            label: 'mac'
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Setup Java 11'
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: 'Setup GraalVM Environment'
+        uses: DeLaGuardo/setup-graalvm@3.1
+        with:
+          graalvm-version: '20.3.0.java11'
+
+      - name: 'Install Native Image Plugin'
+        run: |
+          gu install native-image
+
+      - name: 'Get Version Number'
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+      - name: 'Get JAR Artifact'
+        uses: actions/download-artifact@v2
+        with:
+          name: 'strm-${{env.VERSION}}.jar'
+
+      - name: 'Get Release URL'
+        if: contains(github.ref, 'v')
+        uses: actions/download-artifact@v2
+        with:
+          name: 'upload_url.txt'
+
+      - name: 'Get Upload URL'
+        if: contains(github.ref, 'v')
+        run: |
+          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+
+      - name: 'Build Native Image'
+        run: |
+          native-image -jar strm-${{env.VERSION}}.jar --no-server --no-fallback --allow-incomplete-classpath --enable-url-protocols=http --enable-url-protocols=https -H:ReflectionConfigurationResources=reflection.json -H:Class=io.streammachine.api.cli.StrmKt -H:Name=strm-${{env.VERSION}}-${{matrix.label}}
+
+      - name: 'Publish Native Image'
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'strm-${{env.VERSION}}-${{matrix.label}}'
+          path: 'strm-${{env.VERSION}}-${{matrix.label}}'
+
+      - name: 'Release Native Image Asset'
+        if: success() && contains(github.ref, 'v')
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+        with:
+          upload_url: ${{env.UPLOAD_URL}}
+          asset_name: 'strm-${{env.VERSION}}-${{matrix.label}}'
+          asset_path: 'strm-${{env.VERSION}}-${{matrix.label}}'
+          asset_content_type: application/octet-stream
+
+  build-windows-image:
+    needs: [build-jar-job]
+    name: 'Build Windows Image'
+    runs-on: windows-latest
+
+    steps:
+
+      - name: 'Checkout'
+        uses: actions/checkout@v1
+
+      - name: 'Download GraalVM'
+        run: |
+          Invoke-RestMethod -Uri https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.3.0/graalvm-ce-java11-windows-amd64-20.3.0.zip -OutFile 'graal.zip'
+
+      - name: 'Install GraalVM'
+        run: |
+          Expand-Archive -path 'graal.zip' -destinationpath '.'
+
+      - name: 'Install Native Image'
+        run: |
+          graalvm-ce-java11-20.3.0\bin\gu.cmd install native-image
+
+      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools'
+        run: |
+          choco install visualstudio2017-workload-vctools
+
+      - name: 'Get Version Number'
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: 'Get JAR Artifact'
+        uses: actions/download-artifact@v2
+        with:
+          name: 'strm-${{env.VERSION}}.jar'
+
+      - name: 'Build Native Image'
+        shell: cmd
+        env:
+          JAVA_HOME: ./graalvm-ce-java11-20.3.0
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+                    ./graalvm-ce-java11-20.3.0/bin/native-image -jar strm-${{env.VERSION}}.jar --no-server --no-fallback --allow-incomplete-classpath --enable-url-protocols=http --enable-url-protocols=https -H:ReflectionConfigurationResources=reflection.json -H:Class=io.streammachine.api.cli.StrmKt -H:Name=strm-${{env.VERSION}}-windows
+
+      - name: 'Get Release URL'
+        if: contains(github.ref, 'v')
+        uses: actions/download-artifact@v2
+        with:
+          name: 'upload_url.txt'
+
+      - name: 'Get Upload URL'
+        if: contains(github.ref, 'v')
+        run: |
+          echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: 'Publish Windows Image'
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'strm-${{env.VERSION}}-windows.exe'
+          path: 'strm-${{env.VERSION}}-windows.exe'
+
+      - name: 'Release Windows Image Asset'
+        if: success() && contains(github.ref, 'v')
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
+        with:
+          upload_url: ${{env.UPLOAD_URL}}
+          asset_name: 'strm-${{env.VERSION}}-windows.exe'
+          asset_path: 'strm-${{env.VERSION}}-windows.exe'
+          asset_content_type: application/octet-stream
