@@ -13,47 +13,54 @@ fun main(args: Array<String>) {
         .setRedirectUri(SpotifyHttpManager.makeUri("http://localhost:8080/cli"))
         .build()
 
-    val url = spotifyApi.authorizationCodeUri()
-        .scope(
-            listOf(
-                "app-remote-control",
-                "user-read-playback-position",
-                "user-read-playback-state",
-                "user-modify-playback-state",
-                "user-read-currently-playing",
-                "user-read-recently-played",
-                "user-top-read",
-                "user-read-private",
-                "user-read-email",
-                "ugc-image-upload"
-            ).joinToString(" ")
-        )
-        .build()
+//    val url = spotifyApi.authorizationCodeUri()
+//        .scope(
+//            listOf(
+//                "app-remote-control",
+//                "user-read-playback-position",
+//                "user-read-playback-state",
+//                "user-modify-playback-state",
+//                "user-read-currently-playing",
+//                "user-read-recently-played",
+//                "user-top-read",
+//                "user-read-private",
+//                "user-read-email",
+//                "ugc-image-upload"
+//            ).joinToString(" ")
+//        )
+//        .build()
+//
+//    OAuthCallbackServer.startCallbackServer()
+//
+//    println("Authenticating, please navigate to: ${url.uri}")
+//
+//    while (OAuthCredentialsProvider.oAuthCallbackCode == null) {
+//    }
+//
+//    println("STOPPING OAUTH CALLBACK")
+//    OAuthCallbackServer.stopCallbackServer()
+//
+//
+//    println("Requesting token")
+//    val clientCredentialsRequest = spotifyApi.authorizationCode(OAuthCredentialsProvider.oAuthCallbackCode).build()
+//
+//    val clientCredentials = clientCredentialsRequest.execute()
 
-    OAuthCallbackServer.startCallbackServer()
+    println("Setting access token")
+//    spotifyApi.accessToken = clientCredentials.accessToken
+    spotifyApi.accessToken = "BQDYwSqJZtgLlfCJm2bi_uaD0dAOkttWDuPnxZDhAqF4RhW69lm7Wa64PqMsNdzaycbkDsz2PTET45cfpP7YKLXGzmoIIpjP8JM3VY-N4kXHnX1rMJ1dLpuq-liFh8UxRaUiqHgV6_yG5CSIwwuUQekGRxxvgWnAZ5YMSwLATZrXE2NQtKQex6NfnCVgVLNsmBKVOy0n0xe1"
 
-//    Desktop.getDesktop().browse(url.uri)
+//    println(clientCredentials.accessToken)
 
-    while (OAuthCredentialsProvider.oAuthCallbackCode == null) {
-    }
-
-    OAuthCallbackServer.stopCallbackServer()
-
-    val clientCredentialsRequest = spotifyApi.authorizationCode(OAuthCredentialsProvider.oAuthCallbackCode).build()
-
-    val clientCredentials = clientCredentialsRequest.execute()
-
-    spotifyApi.accessToken = clientCredentials.accessToken
-
-    println(clientCredentials.accessToken)
-
+    println("Get current user playback")
     val req = spotifyApi.informationAboutUsersCurrentPlayback.build()
 
     val response = req.execute()
 
-    println(response.item)
+    println(response)
 
-    spotifyApi.startResumeUsersPlayback().build().execute()
+    println("Start user's playback")
+    spotifyApi.startResumeUsersPlayback().device_id("3491db6461abce7434d0a6f19f3393e956705774").build().execute()
 }
 
 
