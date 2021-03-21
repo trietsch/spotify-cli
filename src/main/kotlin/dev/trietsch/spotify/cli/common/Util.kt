@@ -36,6 +36,7 @@ object BrowserUtil {
     }
 }
 
+// FIXME shouldn't print not logged in if commands succeed?
 fun <T> runIfAuthenticated(printWarning: Boolean = true, block: () -> T): T? {
     return getCredentials()?.let { block.invoke() } ?: (null).also {
         if (printWarning) println("You are not logged in, please log in first.")
