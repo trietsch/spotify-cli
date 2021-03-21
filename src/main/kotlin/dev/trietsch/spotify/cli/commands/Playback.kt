@@ -126,6 +126,7 @@ class SetDevices : CliktCommand(
     completionCandidates = CompletionCandidates.Custom.fromStdout("echo ${devices?.joinToString(" ") { it.name }}"))
 
     override fun run() {
+        // TODO actually store this
         println("Set default device: $name")
     }
 }
