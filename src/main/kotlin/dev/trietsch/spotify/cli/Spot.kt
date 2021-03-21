@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import dev.trietsch.spotify.cli.Spot.Companion.COMMAND
 import dev.trietsch.spotify.cli.commands.Authentication
+import dev.trietsch.spotify.cli.commands.Playback
 import dev.trietsch.spotify.cli.common.CliContext
 import dev.trietsch.spotify.cli.common.ColorHelpFormatter
 
@@ -21,7 +22,7 @@ fun main(args: Array<String>) = Spot()
 class Spot : CliktCommand(
     name = COMMAND,
     help = "Command Line Interface for Spotify",
-    epilog = "Source code: https://github.com/trietsch/spotify-cli - Created by Robin Trietsch (https://trietsch.dev)"
+    epilog = "Source code: https://github.com/trietsch/spotify-cli\nCreated by Robin Trietsch (https://trietsch.dev)"
 ) {
     companion object {
         internal const val COMMAND = "spot"
@@ -31,7 +32,8 @@ class Spot : CliktCommand(
 
     init {
         subcommands(
-            Authentication()
+            Authentication(),
+            Playback()
         )
     }
 

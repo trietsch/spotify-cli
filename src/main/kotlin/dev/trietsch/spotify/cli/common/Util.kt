@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.output.CliktHelpFormatter
 import com.github.ajalt.clikt.output.HelpFormatter
 import dev.trietsch.spotify.cli.common.CliContext.Terminal.SPOTIFY_GREEN
 import dev.trietsch.spotify.cli.common.CliContext.Terminal.TERM_COLORS
+import dev.trietsch.spotify.cli.common.CliContext.getCredentials
 
 object BrowserUtil {
     private val runtime = Runtime.getRuntime()
@@ -32,6 +33,12 @@ object BrowserUtil {
                 runtime.exec(arrayOf("sh", "-c", command))
             }
         }
+    }
+}
+
+fun <T> runIfAuthenticated(printWarning: Boolean = true, block: () -> T): T? {
+    return getCredentials()?.let { block.invoke() } ?: (null).also {
+        if (printWarning) println("You are not logged in, please log in first.")
     }
 }
 
