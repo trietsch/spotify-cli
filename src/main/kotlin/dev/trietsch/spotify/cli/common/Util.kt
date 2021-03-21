@@ -35,6 +35,12 @@ object BrowserUtil {
     }
 }
 
+fun printVerbose(vararg messages: Any?) {
+    if (CliContext.VERBOSE_LOGGING) {
+        messages.forEach { println(it) }
+    }
+}
+
 object ColorHelpFormatter : CliktHelpFormatter() {
     override fun renderTag(tag: String, value: String) = TERM_COLORS.green(super.renderTag(tag, value))
     override fun renderOptionName(name: String) = super.renderOptionName(name)

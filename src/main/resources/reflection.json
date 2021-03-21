@@ -398,5 +398,43 @@
       {"name":"ZR"},
       {"name":"ZW"}
     ]
+  },
+  {
+    "name": "dev.trietsch.spotify.cli.common.CliConfig",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "fields": [
+      {
+        "name": "clientId",
+        "allowWrite": true
+      },
+      {
+        "name": "clientSecret",
+        "allowWrite": true
+      },
+      {
+        "name": "callback",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "dev.trietsch.spotify.cli.common.CliConfig.CallbackConfig",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "fields": [
+      {
+        "name": "port",
+        "allowWrite": true
+      },
+      {
+        "name": "path",
+        "allowWrite": true
+      }
+    ]
   }
 ]
