@@ -98,11 +98,13 @@ class ListDevices : CliktCommand(
 
     override fun run() {
         runIfAuthenticated {
+            println("listing devices")
             SPOTIFY_API
                 .usersAvailableDevices
                 .build()
                 .execute()
-                .forEach { println("${it.name} (${it.id})") }
+                .joinToString(" ") { it.name }
+                .let { println(it) }
         }
     }
 }
@@ -114,16 +116,16 @@ class SetDevices : CliktCommand(
     companion object {
         internal const val COMMAND = "set-default"
 
-        private val devices = runIfAuthenticated(false) {
-            SPOTIFY_API
-                .usersAvailableDevices
-                .build()
-                .execute()
-        }
+//        private val devices = runIfAuthenticated(false) {
+//            SPOTIFY_API
+//                .usersAvailableDevices
+//                .build()
+//                .execute()
+//        }
     }
 
     private val name by argument("name", help = "The name of the device you want to set as default playback device",
-    completionCandidates = CompletionCandidates.Custom.fromStdout("echo ${devices?.joinToString(" ") { it.name }}"))
+    completionCandidates = CompletionCandidates.Custom.fromStdout("spot playback devices list"))
 
     override fun run() {
         // TODO actually store this
