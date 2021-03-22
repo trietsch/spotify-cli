@@ -22,7 +22,7 @@ fun main(args: Array<String>) = Spot()
 class Spot : CliktCommand(
     name = COMMAND,
     help = "Command Line Interface for Spotify",
-    epilog = "Source code: https://github.com/trietsch/spotify-cli\nCreated by Robin Trietsch (https://trietsch.dev)"
+    epilog = "Source code: https://github.com/trietsch/spotify-cli - Created by Robin Trietsch (https://trietsch.dev)"
 ) {
     companion object {
         internal const val COMMAND = "spot"
