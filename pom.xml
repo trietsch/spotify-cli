@@ -218,14 +218,12 @@
                     <mainClass>${mainClass}</mainClass>
                     <buildArgs>
                         --report-unsupported-elements-at-runtime
-                        --verbose
                         --enable-http
                         --enable-https
                         --no-fallback
                         --initialize-at-build-time=org.eclipse.jetty
                         --initialize-at-build-time=org.slf4j
                         --initialize-at-build-time=javax.servlet
-                        --initialize-at-build-time=dev.trietsch.spotify.cli.common.OAuthCallbackServlet
                         --allow-incomplete-classpath
                         -H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflection.json
                         -H:IncludeResources=.*

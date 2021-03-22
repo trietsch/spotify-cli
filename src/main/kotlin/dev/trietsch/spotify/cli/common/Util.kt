@@ -2,6 +2,7 @@ package dev.trietsch.spotify.cli.common
 
 import com.github.ajalt.clikt.output.CliktHelpFormatter
 import com.github.ajalt.clikt.output.HelpFormatter
+import com.wrapper.spotify.exceptions.detailed.UnauthorizedException
 import dev.trietsch.spotify.cli.Spot
 import dev.trietsch.spotify.cli.commands.Authentication
 import dev.trietsch.spotify.cli.commands.Login
@@ -39,7 +40,18 @@ object BrowserUtil {
     }
 }
 
-fun runIfAuthenticated(block: () -> Unit) = getCredentials()?.let { block.invoke() }
+fun runIfAuthenticated(block: () -> Unit) = getCredentials()
+    ?.let {
+        runCatching(block)
+            .onFailure {
+                if (it is UnauthorizedException) {
+                    println("Your credentials have expired. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
+                } else {
+                    println("An unexpected error occurred, enable verbose logging to see the stacktrace: ${Spot.COMMAND} --verbose <your command>")
+                    printVerbose(it)
+                }
+            }
+    }
     ?: println("You are currently not logged in. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
 
 fun printVerbose(vararg messages: Any?) {

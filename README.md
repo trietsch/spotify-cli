@@ -35,3 +35,7 @@ This automatically activates and sets GraalVM as the active JDK.
 ## License
 
 Feel free to use, copy, and modify this code to fit your needs. A reference towards this repository is appreciated :)
+
+## Disclaimer
+
+The requested scopes for this app are far too much, don't do this in real life ;)

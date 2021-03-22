@@ -24,7 +24,8 @@ class Authentication : CliktCommand(
 
     init {
         subcommands(
-            Login()
+            Login(),
+            Revoke()
         )
     }
 
@@ -60,14 +61,36 @@ class Login : CliktCommand(
         storeCredentials(clientCredentials)
     }
 
-    // FIXME add the request time to the stored credentials
     private fun storeCredentials(clientCredentials: AuthorizationCodeCredentials) =
         runCatching {
             credentialsWriter { GSON.toJson(clientCredentials, it) }
         }.fold({
-            println("Succesfully logged in!")
+            println("Successfully logged in!")
         }) {
             println("Failed to store credentials at ${getCredentialsFile()}.")
             printVerbose("Error: ", it)
+        }
+}
+
+class Revoke : CliktCommand(
+    name = COMMAND,
+    help = "Revoke the currently stored credentials"
+) {
+    companion object {
+        internal const val COMMAND = "revoke"
+    }
+
+    override fun run() =
+        runCatching {
+            if (getCredentialsFile().exists()) getCredentialsFile().delete() else false
+        }.fold({
+            if (it) {
+                println("Revoked currently active credentials.")
+            } else {
+                println("Currently there are no active credentials.")
+            }
+        }) {
+            println("Failed to revoke currently active credentials.")
+            println("reason = ${it.message}")
         }
 }
