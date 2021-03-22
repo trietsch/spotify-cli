@@ -40,6 +40,7 @@ object CliContext {
     internal val GSON = GsonBuilder().create()
 
     private var CREDENTIALS: AuthorizationCodeCredentials? = null
+    private var PREFERENCES: CliPreferences? = null
 
     internal var VERBOSE_LOGGING = false
     internal val VERSION = CliContext.javaClass.`package`.implementationVersion ?: "snapshot"
@@ -52,30 +53,39 @@ object CliContext {
         getCredentials()?.let { setAccessToken(it.accessToken) }
     }.build()
 
-    internal fun getCredentialsPath() = File("${System.getProperty("user.home")}/.config/spotify-cli")
+    internal fun getConfigPath() = File("${System.getProperty("user.home")}/.config/spotify-cli")
+    internal fun getCredentialsFile() = getConfigPath().resolve("credentials.json")
+    internal fun getPreferencesFile() = getConfigPath().resolve("preferences.json")
 
-    internal fun getCredentialsFile() = getCredentialsPath().resolve("credentials.json")
-
-    internal fun writer(block: (FileWriter) -> Unit) {
-        val fileWriter = FileWriter(getCredentialsFile(), StandardCharsets.UTF_8, false)
+    internal fun credentialsWriter(block: (FileWriter) -> Unit) = writer(getCredentialsFile(), block)
+    internal fun preferencesWriter(block: (FileWriter) -> Unit) = writer(getPreferencesFile(), block)
+    private fun writer(file: File, block: (FileWriter) -> Unit) {
+        getConfigPath().mkdirs()
+        val fileWriter = FileWriter(file, StandardCharsets.UTF_8, false)
         block.invoke(fileWriter)
         fileWriter.flush()
         fileWriter.close()
     }
 
-    internal fun getReader() = FileReader(getCredentialsFile())
-
     internal fun getCredentials(): AuthorizationCodeCredentials? {
         if (CREDENTIALS == null) {
             CREDENTIALS =
-                runCatching { GSON.fromJson(getReader(), AuthorizationCodeCredentials::class.java) }.getOrNull()
+                runCatching { GSON.fromJson(FileReader(getCredentialsFile()), AuthorizationCodeCredentials::class.java) }.getOrNull()
         }
 
         return CREDENTIALS
     }
 
-    internal fun setCredentials(credentials: AuthorizationCodeCredentials?) {
-        CREDENTIALS = credentials
+    internal fun getPreferences(): CliPreferences? {
+        if (PREFERENCES == null) {
+            PREFERENCES = runCatching { GSON.fromJson(FileReader(getPreferencesFile()), CliPreferences::class.java) }.getOrNull()
+
+            if (PREFERENCES == null) {
+                PREFERENCES = CliPreferences()
+            }
+        }
+
+        return PREFERENCES
     }
 }
 
@@ -89,3 +99,7 @@ data class CliConfig(
         val path: String
     )
 }
+
+data class CliPreferences(
+    val defaultPlaybackDeviceId: String? = null
+)

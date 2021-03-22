@@ -2,6 +2,9 @@ package dev.trietsch.spotify.cli.common
 
 import com.github.ajalt.clikt.output.CliktHelpFormatter
 import com.github.ajalt.clikt.output.HelpFormatter
+import dev.trietsch.spotify.cli.Spot
+import dev.trietsch.spotify.cli.commands.Authentication
+import dev.trietsch.spotify.cli.commands.Login
 import dev.trietsch.spotify.cli.common.CliContext.Terminal.SPOTIFY_GREEN
 import dev.trietsch.spotify.cli.common.CliContext.Terminal.TERM_COLORS
 import dev.trietsch.spotify.cli.common.CliContext.getCredentials
@@ -37,6 +40,7 @@ object BrowserUtil {
 }
 
 fun runIfAuthenticated(block: () -> Unit) = getCredentials()?.let { block.invoke() }
+    ?: println("You are currently not logged in. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
 
 fun printVerbose(vararg messages: Any?) {
     if (CliContext.VERBOSE_LOGGING) {

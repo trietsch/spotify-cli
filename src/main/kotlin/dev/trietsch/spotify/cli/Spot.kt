@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import dev.trietsch.spotify.cli.Spot.Companion.COMMAND
+import dev.trietsch.spotify.cli.commands.Account
 import dev.trietsch.spotify.cli.commands.Authentication
 import dev.trietsch.spotify.cli.commands.Playback
 import dev.trietsch.spotify.cli.common.CliContext
@@ -33,7 +34,8 @@ class Spot : CliktCommand(
     init {
         subcommands(
             Authentication(),
-            Playback()
+            Playback(),
+            Account()
         )
     }
 

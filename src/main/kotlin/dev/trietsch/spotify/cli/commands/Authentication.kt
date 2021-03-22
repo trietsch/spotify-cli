@@ -7,10 +7,8 @@ import dev.trietsch.spotify.cli.common.BrowserUtil
 import dev.trietsch.spotify.cli.common.CliContext
 import dev.trietsch.spotify.cli.common.CliContext.GSON
 import dev.trietsch.spotify.cli.common.CliContext.SPOTIFY_API
+import dev.trietsch.spotify.cli.common.CliContext.credentialsWriter
 import dev.trietsch.spotify.cli.common.CliContext.getCredentialsFile
-import dev.trietsch.spotify.cli.common.CliContext.getCredentialsPath
-import dev.trietsch.spotify.cli.common.CliContext.setCredentials
-import dev.trietsch.spotify.cli.common.CliContext.writer
 import dev.trietsch.spotify.cli.common.OAuthCallbackServer
 import dev.trietsch.spotify.cli.common.Scopes.SCOPES
 import dev.trietsch.spotify.cli.common.printVerbose
@@ -62,11 +60,10 @@ class Login : CliktCommand(
         storeCredentials(clientCredentials)
     }
 
+    // FIXME add the request time to the stored credentials
     private fun storeCredentials(clientCredentials: AuthorizationCodeCredentials) =
         runCatching {
-            getCredentialsPath().mkdirs()
-            writer { GSON.toJson(clientCredentials, it) }
-            setCredentials(clientCredentials)
+            credentialsWriter { GSON.toJson(clientCredentials, it) }
         }.fold({
             println("Succesfully logged in!")
         }) {

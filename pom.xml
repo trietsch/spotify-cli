@@ -116,15 +116,6 @@
             <artifactId>jetty-servlet</artifactId>
             <version>9.4.28.v20200408</version>
         </dependency>
-
-
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>1.4.3</version>
-        </dependency>
-
-
     </dependencies>
 
     <build>
@@ -225,13 +216,19 @@
                 <configuration>
                     <imageName>spot</imageName>
                     <mainClass>${mainClass}</mainClass>
-                    <!--                    <buildArgs>&#45;&#45;no-fallback &#45;&#45;enable-url-protocols=http &#45;&#45;enable-url-protocols=https &#45;&#45;allow-incomplete-classpath &#45;&#45;report-unsupported-elements-at-runtime &#45;&#45;initialize-at-build-time=org.eclipse.jetty,org.slf4j,javax.servlet</buildArgs>-->
-                    <buildArgs>--report-unsupported-elements-at-runtime --verbose --enable-http --enable-https
-                        --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j
+                    <buildArgs>
+                        --report-unsupported-elements-at-runtime
+                        --verbose
+                        --enable-http
+                        --enable-https
+                        --no-fallback
+                        --initialize-at-build-time=org.eclipse.jetty
+                        --initialize-at-build-time=org.slf4j
                         --initialize-at-build-time=javax.servlet
                         --initialize-at-build-time=dev.trietsch.spotify.cli.common.OAuthCallbackServlet
-                        --trace-class-initialization=org.slf4j.LoggerFactory --allow-incomplete-classpath
-                        -H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflection.json -H:IncludeResources=.*
+                        --allow-incomplete-classpath
+                        -H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflection.json
+                        -H:IncludeResources=.*
                     </buildArgs>
                 </configuration>
                 <executions>
