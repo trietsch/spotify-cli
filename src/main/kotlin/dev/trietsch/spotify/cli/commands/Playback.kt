@@ -165,7 +165,7 @@ class SetDevices : CliktCommand(
 
     private val name by argument(
         "name", help = "The name of the device you want to set as default playback device",
-        completionCandidates = CompletionCandidates.Custom.fromStdout("spot playback devices list")
+        completionCandidates = CompletionCandidates.Custom.fromStdout("${Spot.COMMAND} ${Playback.COMMAND} ${Devices.COMMAND} ${ListDevices.COMMAND}")
     )
 
     override fun run() {
