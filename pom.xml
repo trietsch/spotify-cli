@@ -32,8 +32,10 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
 
-        <junit.version>5.5.2</junit.version>
-        <mockk.version>1.10.3</mockk.version>
+        <config.version>1.4.1</config.version>
+        <spotify-web-api-java.version>6.5.2</spotify-web-api-java.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <jetty-servlet.version>9.4.28.v20200408</jetty-servlet.version>
     </properties>
 
     <repositories>
@@ -78,43 +80,30 @@
             <version>${kotlin.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test-junit5</artifactId>
-            <version>${kotlin.version}</version>
-            <scope>test</scope>
-        </dependency>
-
+        <!-- Hocon configuration files -->
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>1.4.1</version>
+            <version>${config.version}</version>
         </dependency>
 
+        <!-- Spotify client -->
         <dependency>
             <groupId>se.michaelthelin.spotify</groupId>
             <artifactId>spotify-web-api-java</artifactId>
-            <version>6.5.2</version>
+            <version>${spotify-web-api-java.version}</version>
         </dependency>
 
         <!-- OAuthCallback Servlet -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>compile</scope>
+            <version>${javax.servlet-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.4.28.v20200408</version>
+            <version>${jetty-servlet.version}</version>
         </dependency>
     </dependencies>
 
@@ -265,7 +254,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>strm-v${project.version}</finalName>
+                    <finalName>spot-v${project.version}</finalName>
                 </configuration>
             </plugin>
             <plugin>
@@ -285,6 +274,7 @@
     </build>
 
     <profiles>
+        <!-- Exclude the native-image Maven plugin execution in CI builds -->
         <profile>
             <id>release</id>
             <build>
@@ -304,6 +294,8 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Default profile for local execution, including a native-image build -->
         <profile>
             <id>default</id>
             <activation>
@@ -311,5 +303,4 @@
             </activation>
         </profile>
     </profiles>
-
 </project>

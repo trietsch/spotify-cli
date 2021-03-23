@@ -1,6 +1,6 @@
 # Based on https://blogs.oracle.com/developers/building-cross-platform-native-images-with-graalvm
 
-name: strm
+name: spot
 on:
   push:
     tags:
@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: 'Checkout'
         uses: actions/checkout@v2
 
@@ -24,9 +23,6 @@ jobs:
       - name: 'Get Version Number'
         run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
-#      - name: 'Get Maven Version Number'
-#        run: echo "POM_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: 'Build JAR'
         run: |
           ./mvnw clean package
@@ -34,8 +30,8 @@ jobs:
       - name: 'Publish JAR'
         uses: actions/upload-artifact@v2
         with:
-          name: 'strm-${{env.VERSION}}.jar'
-          path: 'target/strm-${{env.VERSION}}.jar'
+          name: 'spot-${{env.VERSION}}.jar'
+          path: 'target/spot-${{env.VERSION}}.jar'
 
       - name: 'Create Release'
         if: contains(github.ref, 'v')
@@ -47,7 +43,7 @@ jobs:
           tag_name: ${{github.ref}}
           release_name: Release ${{github.ref}}
           body: |
-            Stream Machine CLI ${{github.ref}}
+            Spotify CLI ${{github.ref}}
           draft: false
           prerelease: false
 
@@ -59,8 +55,8 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: 'target/strm-${{env.VERSION}}.jar'
-          asset_name: strm-${{env.VERSION}}.jar
+          asset_path: 'target/spot-${{env.VERSION}}.jar'
+          asset_name: spot-${{env.VERSION}}.jar
           asset_content_type: application/java-archive
 
 
@@ -113,7 +109,7 @@ jobs:
       - name: 'Get JAR Artifact'
         uses: actions/download-artifact@v2
         with:
-          name: 'strm-${{env.VERSION}}.jar'
+          name: 'spot-${{env.VERSION}}.jar'
 
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
@@ -128,14 +124,14 @@ jobs:
 
       - name: 'Build Native Image'
         run: |
-          native-image -jar strm-${{env.VERSION}}.jar --no-server --no-fallback --allow-incomplete-classpath --enable-url-protocols=http --enable-url-protocols=https -H:ReflectionConfigurationResources=reflection.json -H:Class=io.streammachine.api.cli.StrmKt -H:Name=strm-${{env.VERSION}}-${{matrix.label}}
+          native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-${{matrix.label}}
 
       - name: 'Publish Native Image'
         if: success()
         uses: actions/upload-artifact@v2
         with:
-          name: 'strm-${{env.VERSION}}-${{matrix.label}}'
-          path: 'strm-${{env.VERSION}}-${{matrix.label}}'
+          name: 'spot-${{env.VERSION}}-${{matrix.label}}'
+          path: 'spot-${{env.VERSION}}-${{matrix.label}}'
 
       - name: 'Release Native Image Asset'
         if: success() && contains(github.ref, 'v')
@@ -145,8 +141,8 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
         with:
           upload_url: ${{env.UPLOAD_URL}}
-          asset_name: 'strm-${{env.VERSION}}-${{matrix.label}}'
-          asset_path: 'strm-${{env.VERSION}}-${{matrix.label}}'
+          asset_name: 'spot-${{env.VERSION}}-${{matrix.label}}'
+          asset_path: 'spot-${{env.VERSION}}-${{matrix.label}}'
           asset_content_type: application/octet-stream
 
   build-windows-image:
@@ -182,7 +178,7 @@ jobs:
       - name: 'Get JAR Artifact'
         uses: actions/download-artifact@v2
         with:
-          name: 'strm-${{env.VERSION}}.jar'
+          name: 'spot-${{env.VERSION}}.jar'
 
       - name: 'Build Native Image'
         shell: cmd
@@ -190,7 +186,7 @@ jobs:
           JAVA_HOME: ./graalvm-ce-java11-20.3.0
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-                    ./graalvm-ce-java11-20.3.0/bin/native-image -jar strm-${{env.VERSION}}.jar --no-server --no-fallback --allow-incomplete-classpath --enable-url-protocols=http --enable-url-protocols=https -H:ReflectionConfigurationResources=reflection.json -H:Class=io.streammachine.api.cli.StrmKt -H:Name=strm-${{env.VERSION}}-windows
+                    ./graalvm-ce-java11-20.3.0/bin/native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-windows
 
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
@@ -208,8 +204,8 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v2
         with:
-          name: 'strm-${{env.VERSION}}-windows.exe'
-          path: 'strm-${{env.VERSION}}-windows.exe'
+          name: 'spot-${{env.VERSION}}-windows.exe'
+          path: 'spot-${{env.VERSION}}-windows.exe'
 
       - name: 'Release Windows Image Asset'
         if: success() && contains(github.ref, 'v')
@@ -219,6 +215,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
         with:
           upload_url: ${{env.UPLOAD_URL}}
-          asset_name: 'strm-${{env.VERSION}}-windows.exe'
-          asset_path: 'strm-${{env.VERSION}}-windows.exe'
+          asset_name: 'spot-${{env.VERSION}}-windows.exe'
+          asset_path: 'spot-${{env.VERSION}}-windows.exe'
           asset_content_type: application/octet-stream

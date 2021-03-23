@@ -16,7 +16,7 @@ import dev.trietsch.spotify.cli.common.ColorHelpFormatter
 
 fun main(args: Array<String>) = Spot()
     .context { helpFormatter = ColorHelpFormatter }
-    .completionOption(help = "Generate the completion script for the Spotify CLI. Usage = $COMMAND --generate-completion [bash zsh fish] > /completion/script/location/strm-completions.sh")
+    .completionOption(help = "Generate the completion script for the Spotify CLI. Add 'source <(spot --generate-completion <shell>)' to your profile or rc file.")
     .versionOption(CliContext.VERSION, names = setOf("-v", "--version"), message = { "Spotify CLI version: $it" })
     .main(args)
 
