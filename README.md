@@ -32,6 +32,18 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 This automatically activates and sets GraalVM as the active JDK.
 
+### Client credentials
+
+To successfully use the CLI, make sure to create `application.conf` in `src/main/resources`, with the following contents:
+```hocon
+cli {
+  clientId = "<the client id for your Spotify app>"
+  clientSecret = "<the client secret for your Spotify app>"
+}
+```
+
+To create a `clientId` and `clientSecret`, go to the [Spotify Developer dashboard](https://developer.spotify.com/dashboard/applications).
+
 ## License
 
 Feel free to use, copy, and modify this code to fit your needs. A reference towards this repository is appreciated :)
