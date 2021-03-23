@@ -124,7 +124,7 @@ jobs:
 
       - name: 'Build Native Image'
         run: |
-          native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-${{matrix.label}}
+          native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:IncludeResources=.* -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-${{matrix.label}}
 
       - name: 'Publish Native Image'
         if: success()
@@ -167,9 +167,9 @@ jobs:
         run: |
           graalvm-ce-java11-20.3.0\bin\gu.cmd install native-image
 
-      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools'
+      - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools' # choco install visualstudio2017-workload-vctools
         run: |
-          choco install visualstudio2017-workload-vctools
+          choco upgrade -y visualstudio2017-workload-vctools
 
       - name: 'Get Version Number'
         run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
@@ -186,7 +186,7 @@ jobs:
           JAVA_HOME: ./graalvm-ce-java11-20.3.0
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-                    ./graalvm-ce-java11-20.3.0/bin/native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-windows
+                    ./graalvm-ce-java11-20.3.0/bin/native-image -jar spot-${{env.VERSION}}.jar --report-unsupported-elements-at-runtime --enable-http --enable-https --no-fallback --initialize-at-build-time=org.eclipse.jetty --initialize-at-build-time=org.slf4j --initialize-at-build-time=javax.servlet --allow-incomplete-classpath  -H:ReflectionConfigurationResources=reflection.json -H:IncludeResources=.* -H:Class=dev.trietsch.spotify.cli.SpotKt -H:Name=spot-${{env.VERSION}}-windows
 
       - name: 'Get Release URL'
         if: contains(github.ref, 'v')
