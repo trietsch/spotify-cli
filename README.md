@@ -39,3 +39,7 @@ Feel free to use, copy, and modify this code to fit your needs. A reference towa
 ## Disclaimer
 
 The requested scopes for this app are far too much, don't do this in real life ;)
+
+## Credits
+
+Multi platform builds inspired by [this blog post](https://blogs.oracle.com/developers/building-cross-platform-native-images-with-graalvm).
