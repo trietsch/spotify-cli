@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets
 object CliContext {
     object Terminal {
         internal val TERM_COLORS = TermColors()
-
         internal val SPOTIFY_GREEN = TERM_COLORS.rgb("1DB954")
     }
 
@@ -37,7 +36,7 @@ object CliContext {
             )
         }
 
-    internal val GSON = GsonBuilder().create()
+    internal val GSON = GsonBuilder().setPrettyPrinting().create()
 
     private var CREDENTIALS: AuthorizationCodeCredentials? = null
     private var PREFERENCES: CliPreferences? = null

@@ -4,7 +4,6 @@ import dev.trietsch.spotify.cli.common.CliContext.CONFIG
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletHandler
-import org.eclipse.jetty.util.thread.QueuedThreadPool
 import javax.servlet.annotation.WebServlet
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -12,7 +11,7 @@ import javax.servlet.http.HttpServletResponse
 
 
 object OAuthCallbackServer {
-    private val server = Server(QueuedThreadPool(5, 1, 120))
+    private val server = Server()
 
     fun createAndStartCallbackServer(): Server {
         server.apply {

@@ -46,8 +46,10 @@ class Login : CliktCommand(
         val url = SPOTIFY_API.authorizationCodeUri()
             .scope(SCOPES)
             .build()
+
         println("Authenticating, please navigate to: ${url.uri}")
         BrowserUtil.openUrlInBrowser(url.uri.toString())
+
         jettyServer.join()
 
         printVerbose("Requesting token")

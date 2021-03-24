@@ -214,7 +214,7 @@
                         --initialize-at-build-time=javax.servlet
                         --allow-incomplete-classpath
                         -H:ReflectionConfigurationFiles=${project.basedir}/src/main/resources/reflection.json
-                        -H:IncludeResources=.*
+                        -H:IncludeResources=.*.conf
                     </buildArgs>
                 </configuration>
                 <executions>

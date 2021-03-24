@@ -10,6 +10,26 @@ import dev.trietsch.spotify.cli.common.CliContext.Terminal.SPOTIFY_GREEN
 import dev.trietsch.spotify.cli.common.CliContext.Terminal.TERM_COLORS
 import dev.trietsch.spotify.cli.common.CliContext.getCredentials
 
+fun runIfAuthenticated(block: () -> Unit) = getCredentials()
+    ?.let {
+        runCatching(block)
+            .onFailure {
+                if (it is UnauthorizedException) {
+                    println("Your credentials have expired. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
+                } else {
+                    println("An unexpected error occurred, enable verbose logging to see the stacktrace: ${Spot.COMMAND} --verbose <your command>")
+                    printVerbose(it)
+                }
+            }
+    }
+    ?: println("You are currently not logged in. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
+
+fun printVerbose(vararg messages: Any?) {
+    if (CliContext.VERBOSE_LOGGING) {
+        messages.forEach { println(it) }
+    }
+}
+
 object BrowserUtil {
     private val runtime = Runtime.getRuntime()
     private val browsers = listOf(
@@ -37,26 +57,6 @@ object BrowserUtil {
                 runtime.exec(arrayOf("sh", "-c", command))
             }
         }
-    }
-}
-
-fun runIfAuthenticated(block: () -> Unit) = getCredentials()
-    ?.let {
-        runCatching(block)
-            .onFailure {
-                if (it is UnauthorizedException) {
-                    println("Your credentials have expired. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
-                } else {
-                    println("An unexpected error occurred, enable verbose logging to see the stacktrace: ${Spot.COMMAND} --verbose <your command>")
-                    printVerbose(it)
-                }
-            }
-    }
-    ?: println("You are currently not logged in. Please login to request an access token using: ${Spot.COMMAND} ${Authentication.COMMAND} ${Login.COMMAND}")
-
-fun printVerbose(vararg messages: Any?) {
-    if (CliContext.VERBOSE_LOGGING) {
-        messages.forEach { println(it) }
     }
 }
 
