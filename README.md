@@ -2,6 +2,8 @@
 
 This CLI can be used to control your Spotify account. It is meant as an example project to show how to build a command line interface in a language that runs on the JVM.
 
+Watch [the talk on YouTube](https://www.youtube.com/watch?v=MWrAt1L6xpM) to learn more about this CLI!
+
 ## Installation
 
 Download a binary from the releases page, and put the binary in your `$PATH`.
